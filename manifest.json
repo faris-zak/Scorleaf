@@ -1,0 +1,21 @@
+{
+  "name": "Scorleaf",
+  "short_name": "Scorleaf",
+  "description": "An innovative plant extract under development to relieve the effects of scorpion bites.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "icons": [
+    {
+      "src": "assets/img/scorleaf-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/img/scorleaf-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
