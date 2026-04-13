@@ -54,6 +54,49 @@ function topFunction() {
 // Script functionality
 console.log('Script loaded successfully, no errors found.');
 
+// ===== GALLERY LIGHTBOX =====
+const galleryImages = [
+    { src: 'assets/img/gallery-award-third-place.webp',   caption: 'حفل تكريم المركز الثالث — معسكر المشاريع الواعدة' },
+    { src: 'assets/img/gallery-lab-research.webp',        caption: 'استخلاص مركبات عرق السوس في المختبر' },
+    { src: 'assets/img/gallery-lab-extract.webp',         caption: 'تقطير المستخلص بجهاز التبخير الدوار' },
+    { src: 'assets/img/gallery-lab-samples.webp',         caption: 'عينات مستخلص عرق السوس بمراحل مختلفة' },
+    { src: 'assets/img/gallery-lab-equipment.webp',       caption: 'معدات المختبر المتخصصة لعمليات الاستخلاص' },
+    { src: 'assets/img/gallery-team-presentation.webp',   caption: 'عرض الفريق أمام لجنة التحكيم' },
+];
+let currentLightboxIndex = 0;
+
+function openLightbox(index) {
+    currentLightboxIndex = index;
+    updateLightbox();
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function shiftLightbox(dir) {
+    currentLightboxIndex = (currentLightboxIndex + dir + galleryImages.length) % galleryImages.length;
+    updateLightbox();
+}
+
+function updateLightbox() {
+    const item = galleryImages[currentLightboxIndex];
+    document.getElementById('lightboxImg').src = item.src;
+    document.getElementById('lightboxImg').alt = item.caption;
+    document.getElementById('lightboxCaption').textContent = item.caption;
+}
+
+document.addEventListener('keydown', (e) => {
+    const lb = document.getElementById('lightbox');
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') shiftLightbox(-1);
+    if (e.key === 'ArrowLeft')  shiftLightbox(1);
+});
+
 // ===== CONTACT FORM =====
 function submitContactForm(e) {
     e.preventDefault();

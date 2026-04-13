@@ -31,6 +31,7 @@
             <a href="#ourproject" title="Our Project"><div class="nav-icon">مشروعنا</div></a>
             <a href="#ourteam" title="Our Team"><div class="nav-icon">فريقنا</div></a>
             <a href="#achievements" title="Achievements"><div class="nav-icon">إنجازاتنا</div></a>
+            <a href="#gallery" title="Gallery"><div class="nav-icon">معرضنا</div></a>
             <a href="#statistics" title="Statistics"><div class="nav-icon">إحصاءات</div></a>
             <a href="#symptom" title="Symptom Checker"><div class="nav-icon">فاحص الأعراض</div></a>
             <a href="#inquire" title="Inquire"><div class="nav-icon">الإستعلام</div></a>
@@ -43,6 +44,7 @@
                     <a class="site" href="#ourproject" title="Our Project">حول مشروعنا</a>
                     <a class="site" href="#ourteam" title="Our Team">فريقنا</a>
                     <a class="site" href="#achievements" title="Achievements">إنجازاتنا</a>
+                    <a class="site" href="#gallery" title="Gallery">معرضنا</a>
                     <a class="site" href="#statistics" title="Statistics">إحصاءات</a>
                     <a class="site" href="#symptom" title="Symptom Checker">فاحص الأعراض</a>
                     <a class="site" href="#inquire" title="Inquire">الإستعلام</a>
@@ -281,6 +283,54 @@
                     </div>
                 </div>
             </section>
+
+            <!-- ===== GALLERY ===== -->
+            <section class="gallery-section" id="gallery">
+                <div class="section-wrapper">
+                    <div class="details">
+                        <div class="section-tag">من داخل المختبر</div>
+                        <span class="header">معرضنا</span>
+                        <p class="section-desc">لقطات حقيقية من رحلة البحث والتجريب في مختبر Scorleaf ومحطات تكريمية</p>
+                    </div>
+                    <div class="gallery-grid">
+                        <div class="gallery-item" onclick="openLightbox(0)">
+                            <img src="assets/img/gallery-award-third-place.webp" alt="حفل تكريم المركز الثالث" loading="lazy">
+                            <div class="gallery-caption">حفل تكريم المركز الثالث — معسكر المشاريع الواعدة</div>
+                        </div>
+                        <div class="gallery-item" onclick="openLightbox(1)">
+                            <img src="assets/img/gallery-lab-research.webp" alt="باحث يعمل بالمستخلص" loading="lazy">
+                            <div class="gallery-caption">استخلاص مركبات عرق السوس في المختبر</div>
+                        </div>
+                        <div class="gallery-item" onclick="openLightbox(2)">
+                            <img src="assets/img/gallery-lab-extract.webp" alt="مستخلص عرق السوس" loading="lazy">
+                            <div class="gallery-caption">تقطير المستخلص بجهاز التبخير الدوار</div>
+                        </div>
+                        <div class="gallery-item" onclick="openLightbox(3)">
+                            <img src="assets/img/gallery-lab-samples.webp" alt="عينات المستخلص" loading="lazy">
+                            <div class="gallery-caption">عينات مستخلص عرق السوس بمراحل مختلفة</div>
+                        </div>
+                        <div class="gallery-item" onclick="openLightbox(4)">
+                            <img src="assets/img/gallery-lab-equipment.webp" alt="معدات المختبر" loading="lazy">
+                            <div class="gallery-caption">معدات المختبر المتخصصة لعمليات الاستخلاص</div>
+                        </div>
+                        <div class="gallery-item" onclick="openLightbox(5)">
+                            <img src="assets/img/gallery-team-presentation.webp" alt="تقديم الفريق" loading="lazy">
+                            <div class="gallery-caption">عرض الفريق أمام لجنة التحكيم</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lightbox -->
+            <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+                <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+                <button class="lightbox-prev" onclick="event.stopPropagation(); shiftLightbox(-1)">&#8250;</button>
+                <button class="lightbox-next" onclick="event.stopPropagation(); shiftLightbox(1)">&#8249;</button>
+                <div class="lightbox-inner" onclick="event.stopPropagation()">
+                    <img id="lightboxImg" src="" alt="">
+                    <p id="lightboxCaption" class="lightbox-caption"></p>
+                </div>
+            </div>
 
             <!-- ===== STATISTICS ===== -->
             <section class="stats-section" id="statistics">
