@@ -575,6 +575,8 @@ main section.achievements-section {
 .achievement-card.blue .achievement-icon { background: rgba(59,130,246,0.12); color: #3B82F6; }
 .achievement-card.purple { border-top: 4px solid #8B5CF6; }
 .achievement-card.purple .achievement-icon { background: rgba(139,92,246,0.12); color: #8B5CF6; }
+.achievement-card.orange { border-top: 4px solid #F97316; }
+.achievement-card.orange .achievement-icon { background: rgba(249,115,22,0.12); color: #F97316; }
 
 .achievement-body {
     text-align: right;
