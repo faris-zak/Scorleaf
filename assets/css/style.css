@@ -815,7 +815,7 @@ main section.fourth-body {
     }
 }
 
-@media screen and (max-width: 980px){
+@media screen and (max-width: 1100px){
 
     nav.navbar{
         padding-left: 18px;
@@ -1218,5 +1218,206 @@ main section.symptom-section {
 
     .symptom-options {
         justify-content: center;
+    }
+}
+
+/* ===== STATISTICS SECTION ===== */
+.stats-section {
+    background: #fff;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 48px;
+}
+
+.stat-card {
+    background: #F5FAF7;
+    border: 1px solid rgba(28, 143, 90, 0.1);
+    border-radius: 20px;
+    padding: 30px 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(28, 143, 90, 0.12);
+}
+
+.stat-card-accent {
+    background: #1C8F5A;
+    border-color: #1C8F5A;
+}
+
+.stat-card-accent .stat-icon,
+.stat-card-accent .stat-number,
+.stat-card-accent .stat-unit,
+.stat-card-accent .stat-label {
+    color: #fff;
+}
+
+.stat-card-region {
+    background: linear-gradient(135deg, #1A2E25 0%, #1C8F5A 100%);
+    border-color: transparent;
+}
+
+.stat-card-region .stat-icon,
+.stat-card-region .stat-number,
+.stat-card-region .stat-unit,
+.stat-card-region .stat-label {
+    color: #fff;
+}
+
+.stat-icon {
+    font-size: 1.9rem;
+    color: #1C8F5A;
+    margin-bottom: 12px;
+}
+
+.stat-number {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: #1A2E25;
+    font-family: 'Nunito', sans-serif;
+    line-height: 1;
+}
+
+.stat-unit {
+    font-size: 0.82rem;
+    color: #4E6B5A;
+    margin: 6px 0 10px;
+    font-weight: 600;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #4E6B5A;
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.5;
+}
+
+/* Gulf bar chart */
+.gulf-stats {
+    background: #F5FAF7;
+    border: 1px solid rgba(28, 143, 90, 0.1);
+    border-radius: 20px;
+    padding: 32px;
+    margin-top: 36px;
+}
+
+.gulf-title {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1A2E25;
+    margin: 0 0 26px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gulf-title i {
+    color: #1C8F5A;
+}
+
+.gulf-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.gulf-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.gulf-country {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.95rem;
+    color: #1A2E25;
+    font-weight: 600;
+    min-width: 210px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gulf-bar-wrap {
+    flex: 1;
+    background: rgba(28, 143, 90, 0.07);
+    border-radius: 30px;
+    height: 38px;
+    overflow: hidden;
+}
+
+.gulf-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #1C8F5A, #4fcf91);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-inline-end: 14px;
+    transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 80px;
+}
+
+.gulf-bar-num {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+}
+
+/* Source note */
+.stats-source {
+    margin-top: 26px;
+    padding: 16px 20px;
+    background: #F5FAF7;
+    border-radius: 14px;
+    border-inline-end: 4px solid #1C8F5A;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.87rem;
+    color: #4E6B5A;
+    line-height: 1.8;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.stats-source i {
+    color: #1C8F5A;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+@media screen and (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .gulf-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .gulf-country {
+        min-width: auto;
+    }
+
+    .gulf-bar-wrap {
+        width: 100%;
     }
 }

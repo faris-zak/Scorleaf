@@ -200,3 +200,55 @@ function checkSymptoms() {
   result.innerHTML = html;
   result.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
+
+// ===== STATISTICS ANIMATION =====
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target, 10);
+  const isPct = el.classList.contains('stat-pct');
+  const duration = 1800;
+  const steps = Math.ceil(duration / 16);
+  const increment = target / steps;
+  let current = 0;
+  let frame = 0;
+
+  const timer = setInterval(function () {
+    frame++;
+    current += increment;
+    if (frame >= steps || current >= target) {
+      current = target;
+      clearInterval(timer);
+    }
+    if (isPct) {
+      el.textContent = Math.round(current) + '%';
+    } else if (target >= 1000000) {
+      el.textContent = (current / 1000000).toFixed(1) + 'م';
+    } else if (target >= 10000) {
+      el.textContent = Math.round(current / 1000) + 'ألف+';
+    } else {
+      el.textContent = Math.round(current).toLocaleString('ar-SA');
+    }
+  }, 16);
+}
+
+function animateStatBars() {
+  document.querySelectorAll('.gulf-bar').forEach(function (bar) {
+    bar.style.width = bar.dataset.width + '%';
+  });
+}
+
+var statsAnimated = false;
+var statsObserver = new IntersectionObserver(function (entries) {
+  entries.forEach(function (entry) {
+    if (entry.isIntersecting && !statsAnimated) {
+      statsAnimated = true;
+      document.querySelectorAll('.stat-number').forEach(animateCounter);
+      animateStatBars();
+      statsObserver.disconnect();
+    }
+  });
+}, { threshold: 0.15 });
+
+var statsSection = document.getElementById('statistics');
+if (statsSection) {
+  statsObserver.observe(statsSection);
+}
