@@ -54,6 +54,21 @@ function topFunction() {
 // Script functionality
 console.log('Script loaded successfully, no errors found.');
 
+// ===== CONTACT FORM =====
+function submitContactForm(e) {
+    e.preventDefault();
+    const name    = document.getElementById('contactName').value.trim();
+    const email   = document.getElementById('contactEmail').value.trim();
+    const subject = document.getElementById('contactSubject').value.trim();
+    const message = document.getElementById('contactMessage').value.trim();
+    const body = `الاسم: ${name}\nالبريد: ${email}\n\n${message}`;
+    const mailto = `mailto:scorleaf@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const sent = document.getElementById('formSent');
+    sent.style.display = 'block';
+    setTimeout(() => { window.location.href = mailto; }, 300);
+    setTimeout(() => { sent.style.display = 'none'; e.target.reset(); }, 3000);
+}
+
 // ===== AI CHATBOT =====
 const chatKB = [
   {

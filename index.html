@@ -225,6 +225,15 @@
                                 <p>شاركنا في مسابقة المشاريع الطلابية بجامعة الشرقية، وحظينا باعتراف أكاديمي بجدارة المشروع وأثره الصحي</p>
                             </div>
                         </div>
+
+                        <div class="achievement-card purple">
+                            <div class="achievement-icon"><i class="fa-solid fa-rocket"></i></div>
+                            <div class="achievement-body">
+                                <div class="achievement-year">فبراير 2025</div>
+                                <h3>مسرّعة أعمال الشركات الناشئة العُمانية الواعدة</h3>
+                                <p>تم اختيار Scorleaf من بين <strong>280 شركة طلابية</strong> ضمن برنامج مسرّعة أعمال الشركات الناشئة، تحت رعاية السيد بلعرب بن هيثم آل سعيد، بفترة احتضان لمدة 4 أشهر</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Media Coverage -->
@@ -410,14 +419,28 @@
                         <span class="header">الإستعلام</span>
                         <p class="section-desc">هل لديك سؤال أو ترغب في معرفة المزيد عن Scorleaf؟ تواصل معنا</p>
                     </div>
-                    <div class="contact-grid">
-                        <a href="mailto:scorleaf@gmail.com" class="contact-card">
+                    <!-- Contact Form -->
+                    <div class="contact-form-card">
+                        <div class="contact-form-head">
                             <div class="contact-icon"><i class="fa-regular fa-envelope"></i></div>
-                            <div class="contact-detail">
-                                <span class="contact-label">البريد الإلكتروني</span>
+                            <div>
+                                <span class="contact-label">راسلنا مباشرةً</span>
                                 <span class="contact-value">scorleaf@gmail.com</span>
                             </div>
-                        </a>
+                        </div>
+                        <form class="contact-form" onsubmit="submitContactForm(event)">
+                            <div class="form-row">
+                                <input type="text" id="contactName" class="form-input" placeholder="اسمك" dir="rtl" required>
+                                <input type="email" id="contactEmail" class="form-input" placeholder="بريدك الإلكتروني" dir="ltr" required>
+                            </div>
+                            <input type="text" id="contactSubject" class="form-input" placeholder="الموضوع" dir="rtl" required>
+                            <textarea id="contactMessage" class="form-input form-textarea" rows="4" placeholder="رسالتك..." dir="rtl" required></textarea>
+                            <button type="submit" class="form-submit">إرسال <i class="fa-solid fa-paper-plane"></i></button>
+                            <p class="form-sent" id="formSent" style="display:none;">✅ جاري فتح تطبيق البريد...</p>
+                        </form>
+                    </div>
+
+                    <div class="contact-grid">
                         <a href="https://www.instagram.com/scorleaf.om" target="_blank" rel="noopener noreferrer" class="contact-card">
                             <div class="contact-icon"><i class="fa-brands fa-instagram"></i></div>
                             <div class="contact-detail">
@@ -425,13 +448,21 @@
                                 <span class="contact-value">@scorleaf.om</span>
                             </div>
                         </a>
-                        <a href="tel:+96894673366" class="contact-card">
+                        <div class="contact-card contact-card-phone">
                             <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
                             <div class="contact-detail">
                                 <span class="contact-label">الهاتف</span>
                                 <span class="contact-value" dir="ltr">+968 94673366</span>
+                                <div class="contact-actions">
+                                    <a href="tel:+96894673366" class="contact-action-btn call-btn" title="اتصال">
+                                        <i class="fa-solid fa-phone"></i> اتصال
+                                    </a>
+                                    <a href="https://wa.link/g6l0jv" target="_blank" rel="noopener noreferrer" class="contact-action-btn whatsapp-btn" title="واتساب">
+                                        <i class="fa-brands fa-whatsapp"></i> واتساب
+                                    </a>
+                                </div>
                             </div>
-                        </a>
+                        </div>
                     </div>
 
                     <!-- AI Chatbot -->

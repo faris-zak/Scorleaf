@@ -573,6 +573,8 @@ main section.achievements-section {
 .achievement-card.bronze .achievement-icon { background: rgba(205,124,58,0.12); color: #CD7C3A; }
 .achievement-card.green .achievement-icon { background: rgba(28,143,90,0.12); color: #1C8F5A; }
 .achievement-card.blue .achievement-icon { background: rgba(59,130,246,0.12); color: #3B82F6; }
+.achievement-card.purple { border-top: 4px solid #8B5CF6; }
+.achievement-card.purple .achievement-icon { background: rgba(139,92,246,0.12); color: #8B5CF6; }
 
 .achievement-body {
     text-align: right;
@@ -691,9 +693,105 @@ main section.fourth-body {
     background: #fff;
 }
 
+/* Contact Form Card */
+.contact-form-card {
+    background: #F5FAF7;
+    border: 1px solid rgba(28, 143, 90, 0.12);
+    border-radius: 20px;
+    padding: 32px 32px 28px;
+    max-width: 900px;
+    margin: 0 auto 20px;
+}
+
+.contact-form-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+    text-align: right;
+}
+
+.contact-form-head .contact-icon {
+    flex-shrink: 0;
+}
+
+.contact-form-head .contact-label {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.form-input {
+    width: 100%;
+    background: #fff;
+    border: 1px solid rgba(28, 143, 90, 0.15);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #1A2E25;
+    transition: all 0.25s ease;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: #1C8F5A;
+    box-shadow: 0 0 0 3px rgba(28, 143, 90, 0.1);
+}
+
+.form-input::placeholder {
+    color: #9CA3AF;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 110px;
+}
+
+.form-submit {
+    align-self: flex-start;
+    background: #1C8F5A;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 30px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-submit:hover {
+    background: #157648;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(28, 143, 90, 0.3);
+}
+
+.form-sent {
+    font-size: 14px;
+    color: #1C8F5A;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
 .contact-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     max-width: 900px;
     margin: 0 auto;
@@ -759,6 +857,59 @@ main section.fourth-body {
     color: #1A2E25;
 }
 
+.contact-card-phone {
+    cursor: default;
+}
+
+.contact-card-phone:hover {
+    transform: translateY(-3px);
+}
+
+.contact-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.contact-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.call-btn {
+    background: rgba(28, 143, 90, 0.1);
+    color: #1C8F5A;
+    border: 1px solid rgba(28, 143, 90, 0.25);
+}
+
+.call-btn:hover {
+    background: #1C8F5A;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(28, 143, 90, 0.3);
+}
+
+.whatsapp-btn {
+    background: rgba(37, 211, 102, 0.1);
+    color: #25D366;
+    border: 1px solid rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-btn:hover {
+    background: #25D366;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
 
 @media screen and (max-width: 768px){
     .hero-content {
@@ -812,6 +963,14 @@ main section.fourth-body {
 
     .contact-grid {
         grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-form-card {
+        padding: 22px 18px;
     }
 }
 
