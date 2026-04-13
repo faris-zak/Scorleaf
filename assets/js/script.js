@@ -97,6 +97,19 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft')  shiftLightbox(1);
 });
 
+// Touch swipe support for lightbox
+let _touchStartX = 0;
+document.getElementById('lightbox').addEventListener('touchstart', (e) => {
+    _touchStartX = e.changedTouches[0].clientX;
+}, { passive: true });
+document.getElementById('lightbox').addEventListener('touchend', (e) => {
+    const delta = e.changedTouches[0].clientX - _touchStartX;
+    if (Math.abs(delta) > 50) {
+        // RTL: swipe right → previous, swipe left → next
+        shiftLightbox(delta > 0 ? 1 : -1);
+    }
+}, { passive: true });
+
 // ===== CONTACT FORM =====
 function submitContactForm(e) {
     e.preventDefault();
