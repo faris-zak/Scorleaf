@@ -24,7 +24,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.4.2/uicons-solid-rounded/css/uicons-solid-rounded.css'>
         <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.4.2/uicons-brands/css/uicons-brands.css'>
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     </head>
     <body>
         <nav class="navbar">
@@ -372,13 +371,35 @@
 
                     <!-- Interactive scorpion sting map -->
                     <div class="map-wrapper">
-                        <div id="scorpion-map"></div>
+                        <div class="map-svg-container">
+                            <svg id="scorpion-map-svg" viewBox="75 -20 440 400" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Sea background -->
+                                <rect x="75" y="-20" width="440" height="400" fill="#d6e8f4"/>
+                                <!-- Saudi Arabia -->
+                                <path class="map-country" data-id="sa" fill="#8B0000" d="M85,51 L125,-5 L220,43 L279,54 L296,63 L320,104 L351,141 L428,180 L360,256 L270,270 L189,272 L113,266 L122,225 L117,180 L108,144 L108,99 Z"/>
+                                <!-- Yemen -->
+                                <path class="map-country" data-id="ye" fill="#C62828" d="M189,272 L360,256 L383,261 L400,279 L396,315 L369,351 L315,360 L234,351 L207,327 L198,306 L180,279 Z"/>
+                                <!-- Oman -->
+                                <path class="map-country" data-id="om" fill="#EF6C00" d="M428,180 L441,166 L459,158 L477,149 L500,180 L490,198 L481,216 L459,243 L432,270 L396,279 L369,270 L360,256 Z"/>
+                                <!-- UAE -->
+                                <path class="map-country" data-id="ae" fill="#FFB300" d="M351,141 L428,180 L439,144 L441,122 L423,112 L405,135 L369,141 Z"/>
+                                <!-- Kuwait -->
+                                <path class="map-country" data-id="kw" fill="#FFB300" d="M266,52 L279,54 L297,63 L297,45 L279,34 L266,45 Z"/>
+                                <!-- Qatar -->
+                                <path class="map-country" data-id="qa" fill="#66BB6A" d="M337,133 L353,133 L355,126 L351,104 L342,105 L337,117 Z"/>
+                                <!-- Bahrain (slightly enlarged for visibility) -->
+                                <path class="map-country" data-id="bh" fill="#66BB6A" d="M327,114 L343,114 L345,98 L328,97 Z"/>
+                            </svg>
+                            <div class="map-tooltip" id="mapTooltip">
+                                <p class="map-hint-text"><i class="fa-solid fa-hand-pointer"></i> اضغط على دولة</p>
+                            </div>
+                        </div>
                         <div class="map-legend">
                             <span class="legend-title"><i class="fa-solid fa-location-dot"></i> عدد الحالات السنوية</span>
                             <div class="legend-items">
                                 <div class="legend-item"><span class="legend-dot" style="background:#8B0000"></span>+30,000</div>
-                                <div class="legend-item"><span class="legend-dot" style="background:#D32F2F"></span>+10,000</div>
-                                <div class="legend-item"><span class="legend-dot" style="background:#FF7043"></span>+1,000</div>
+                                <div class="legend-item"><span class="legend-dot" style="background:#C62828"></span>+10,000</div>
+                                <div class="legend-item"><span class="legend-dot" style="background:#EF6C00"></span>+1,000</div>
                                 <div class="legend-item"><span class="legend-dot" style="background:#FFB300"></span>+500</div>
                                 <div class="legend-item"><span class="legend-dot" style="background:#66BB6A"></span>أقل من 500</div>
                             </div>
@@ -528,7 +549,6 @@
                 <p>&copy; سكورليف 2026</p>
             </div>
         </footer>
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLI=" crossorigin=""></script>
         <script src="assets/js/script.js"></script>
     </body>
 </html>

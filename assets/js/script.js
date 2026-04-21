@@ -324,11 +324,9 @@ if (statsSection) {
   statsObserver.observe(statsSection);
 }
 
-// ===== SCORPION MAP =====
-window.addEventListener('load', function () {
-    if (!document.getElementById('scorpion-map') || typeof L === 'undefined') return;
-
-    var countryData = {
+// ===== SCORPION SVG MAP =====
+(function () {
+    var mapData = {
         sa: { name: 'المملكة العربية السعودية', flag: '🇸🇦', cases: 35000, desc: 'أعلى معدل في دول الخليج — الحالات تتركز في المناطق الريفية والصحراوية' },
         ye: { name: 'اليمن', flag: '🇾🇪', cases: 30000, desc: 'معدلات مرتفعة جداً وصعوبة الوصول للعلاج الطبي في المناطق النائية' },
         om: { name: 'سلطنة عُمان', flag: '🇴🇲', cases: 1500, desc: 'حالات موثقة سنوياً — المحافظات الداخلية أكثر تأثراً' },
@@ -338,145 +336,50 @@ window.addEventListener('load', function () {
         bh: { name: 'البحرين', flag: '🇧🇭', cases: 200, desc: 'تقديرات سنوية منخفضة — رقعة جغرافية محدودة' }
     };
 
-    function getColor(cases) {
-        return cases >= 25000 ? '#8B0000' :
-               cases >= 10000 ? '#D32F2F' :
-               cases >= 1000  ? '#FF7043' :
-               cases >= 500   ? '#FFB300' : '#66BB6A';
-    }
+    var tooltip = document.getElementById('mapTooltip');
+    var activeEl = null;
 
-    var geoData = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature', properties: { id: 'sa' },
-                geometry: { type: 'Polygon', coordinates: [[[36.71,29.18],[38.95,32.3],[44.2,29.6],[47.5,29.0],[48.45,28.5],[49.8,26.2],[51.5,24.2],[55.7,22.0],[52.0,17.8],[47.0,17.0],[42.5,16.9],[38.3,17.2],[38.8,19.5],[38.5,22.0],[38.0,24.0],[38.0,26.5],[36.71,29.18]]] }
-            },
-            {
-                type: 'Feature', properties: { id: 'ye' },
-                geometry: { type: 'Polygon', coordinates: [[[42.5,16.9],[52.0,17.8],[53.5,17.5],[54.2,16.5],[54.0,14.5],[52.5,12.5],[49.5,12.0],[45.0,12.5],[43.5,13.8],[43.0,15.0],[42.0,16.5],[42.5,16.9]]] }
-            },
-            {
-                type: 'Feature', properties: { id: 'om' },
-                geometry: { type: 'Polygon', coordinates: [[[55.7,22.0],[56.5,22.8],[57.5,23.2],[58.5,23.7],[59.8,22.0],[59.3,21.0],[58.7,20.0],[57.5,18.5],[56.0,17.0],[54.0,16.5],[52.5,17.0],[52.0,17.8],[55.7,22.0]]] }
-            },
-            {
-                type: 'Feature', properties: { id: 'ae' },
-                geometry: { type: 'Polygon', coordinates: [[[51.5,24.2],[55.7,22.0],[56.4,24.0],[56.5,25.2],[55.5,25.8],[54.5,24.5],[52.5,24.2],[51.5,24.2]]] }
-            },
-            {
-                type: 'Feature', properties: { id: 'kw' },
-                geometry: { type: 'Polygon', coordinates: [[[46.8,29.1],[47.5,29.0],[48.5,28.5],[48.5,29.5],[47.5,30.1],[46.8,29.5],[46.8,29.1]]] }
-            },
-            {
-                type: 'Feature', properties: { id: 'qa' },
-                geometry: { type: 'Polygon', coordinates: [[[50.7,24.6],[51.6,24.6],[51.7,25.0],[51.5,26.2],[51.0,26.15],[50.7,25.5],[50.7,24.6]]] }
-            },
-            {
-                type: 'Feature', properties: { id: 'bh' },
-                geometry: { type: 'Polygon', coordinates: [[[50.35,25.8],[50.75,25.8],[50.85,26.35],[50.4,26.4],[50.35,25.8]]] }
-            }
-        ]
-    };
-
-    var map = L.map('scorpion-map', {
-        center: [22.5, 50],
-        zoom: 5,
-        zoomControl: false,
-        scrollWheelZoom: false
-    });
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19
-    }).addTo(map);
-
-    L.control.zoom({ position: 'bottomleft' }).addTo(map);
-
-    var infoPanel = L.control({ position: 'topright' });
-    infoPanel.onAdd = function () {
-        this._div = L.DomUtil.create('div', 'map-info-panel');
-        this.reset();
-        return this._div;
-    };
-    infoPanel.reset = function () {
-        this._div.innerHTML = '<p class="map-hint-text"><i class="fa-solid fa-hand-pointer"></i> مرّر المؤشر فوق دولة</p>';
-    };
-    infoPanel.update = function (d) {
-        this._div.innerHTML =
+    function showInfo(id) {
+        var d = mapData[id];
+        if (!d || !tooltip) return;
+        tooltip.innerHTML =
             '<div class="map-country-name">' + d.flag + ' ' + d.name + '</div>' +
             '<div class="map-country-cases">~' + d.cases.toLocaleString('ar-SA') + ' حالة / سنة</div>' +
             '<div class="map-country-desc">' + d.desc + '</div>';
-    };
-    infoPanel.addTo(map);
-
-    var geojsonLayer;
-    var activeLayer = null;
-
-    function onEachFeature(feature, layer) {
-        var d = countryData[feature.properties.id];
-        if (!d) return;
-        layer.on({
-            mouseover: function (e) {
-                e.target.setStyle({ weight: 3, fillOpacity: 0.92 });
-                infoPanel.update(d);
-            },
-            mouseout: function (e) {
-                if (activeLayer !== e.target) geojsonLayer.resetStyle(e.target);
-                if (activeLayer === null) infoPanel.reset();
-            },
-            click: function (e) {
-                if (activeLayer) geojsonLayer.resetStyle(activeLayer);
-                activeLayer = e.target;
-                e.target.setStyle({ weight: 3, fillOpacity: 0.92 });
-                infoPanel.update(d);
-                map.fitBounds(e.target.getBounds(), { padding: [50, 50], maxZoom: 7 });
-                L.DomEvent.stopPropagation(e);
-            }
-        });
     }
 
-    geojsonLayer = L.geoJSON(geoData, {
-        style: function (feature) {
-            var d = countryData[feature.properties.id];
-            return {
-                fillColor: d ? getColor(d.cases) : '#cccccc',
-                weight: 1.5,
-                opacity: 1,
-                color: '#ffffff',
-                fillOpacity: 0.75
-            };
-        },
-        onEachFeature: onEachFeature
-    }).addTo(map);
+    function resetInfo() {
+        if (!tooltip) return;
+        tooltip.innerHTML = '<p class="map-hint-text"><i class="fa-solid fa-hand-pointer"></i> اضغط على دولة</p>';
+    }
 
-    map.on('click', function () {
-        if (activeLayer) {
-            geojsonLayer.resetStyle(activeLayer);
-            activeLayer = null;
-            infoPanel.reset();
-        }
+    document.querySelectorAll('.map-country').forEach(function (el) {
+        el.addEventListener('mouseenter', function () { showInfo(el.dataset.id); });
+        el.addEventListener('mouseleave', function () { if (activeEl !== el) resetInfo(); });
+        el.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (activeEl) activeEl.classList.remove('map-active');
+            activeEl = el;
+            el.classList.add('map-active');
+            showInfo(el.dataset.id);
+        });
+        el.addEventListener('touchstart', function (e) {
+            e.stopPropagation();
+            if (activeEl) activeEl.classList.remove('map-active');
+            activeEl = el;
+            el.classList.add('map-active');
+            showInfo(el.dataset.id);
+        }, { passive: true });
     });
 
-    // Force correct dimensions after layout settles
-    setTimeout(function () { map.invalidateSize(); }, 200);
-
-    // Re-fit on window resize
-    window.addEventListener('resize', function () { map.invalidateSize(); });
-
-    // Re-fit when map scrolls into view
-    var mapVisible = false;
-    var mapVisObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-            if (entry.isIntersecting && !mapVisible) {
-                mapVisible = true;
-                map.invalidateSize();
-            }
+    var svg = document.getElementById('scorpion-map-svg');
+    if (svg) {
+        svg.addEventListener('click', function () {
+            if (activeEl) { activeEl.classList.remove('map-active'); activeEl = null; }
+            resetInfo();
         });
-    }, { threshold: 0.1 });
-    mapVisObserver.observe(document.getElementById('scorpion-map'));
-});
+    }
+})();
 
 // ===== SCROLL REVEAL =====
 (function () {
