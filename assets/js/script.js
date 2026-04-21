@@ -391,12 +391,6 @@ if (statsSection) {
 
         var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        // Three.js r152+ uses outputColorSpace; r128 used outputEncoding
-        if ('outputColorSpace' in renderer) {
-            renderer.outputColorSpace = THREE.SRGBColorSpace;
-        }
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1.2;
 
@@ -408,26 +402,22 @@ if (statsSection) {
 
         var camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
         camera.position.set(0, 1.5, 5);
+        camera.lookAt(0, 0, 0);
 
         // ── Lights ──────────────────────────────────────────────────
-        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-        var keyLight = new THREE.DirectionalLight(0xfff5e0, 2.5);
+        var keyLight = new THREE.DirectionalLight(0xfff5e0, 2.0);
         keyLight.position.set(3, 6, 4);
-        keyLight.castShadow = true;
         scene.add(keyLight);
 
-        var fillLight = new THREE.DirectionalLight(0xa8d8a0, 0.8);
+        var fillLight = new THREE.DirectionalLight(0xa8d8a0, 0.7);
         fillLight.position.set(-4, 2, -2);
         scene.add(fillLight);
 
-        var rimLight = new THREE.DirectionalLight(0x88ccff, 0.6);
+        var rimLight = new THREE.DirectionalLight(0x88ccff, 0.5);
         rimLight.position.set(0, -3, -4);
         scene.add(rimLight);
-
-        var pointLight = new THREE.PointLight(lidColor, 1.5, 8);
-        pointLight.position.set(0, 3, 1);
-        scene.add(pointLight);
 
         // ── Jar geometry ────────────────────────────────────────────
         var jarGroup = new THREE.Group();
@@ -436,22 +426,18 @@ if (statsSection) {
         var jarH = 2.0 * scale;
         var jarR = 1.3 * scale;
 
-        // Body cylinder
-        var bodyMat = new THREE.MeshPhysicalMaterial({
+        // Body cylinder — MeshStandardMaterial (no transmission, works everywhere)
+        var bodyMat = new THREE.MeshStandardMaterial({
             color: bodyColor,
-            roughness: 0.1,
-            metalness: 0.05,
-            transmission: 0.55,
-            thickness: 0.5,
-            transparent: true,
-            opacity: 0.85
+            roughness: 0.35,
+            metalness: 0.08
         });
         jarGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(jarR, jarR * 0.92, jarH, 64, 1, false), bodyMat));
 
         // Bottom disc
         var botMesh = new THREE.Mesh(
             new THREE.CylinderGeometry(jarR * 0.92, jarR * 0.92, 0.08 * scale, 64),
-            new THREE.MeshPhysicalMaterial({ color: bodyColor, roughness: 0.2, opacity: 0.9, transparent: true })
+            new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.4 })
         );
         botMesh.position.y = -jarH / 2;
         jarGroup.add(botMesh);
@@ -521,7 +507,7 @@ if (statsSection) {
         var lidH = 0.45 * scale;
         var lidR = jarR + 0.06;
 
-        var lidMat = new THREE.MeshPhysicalMaterial({ color: lidColor, roughness: 0.15, metalness: 0.6 });
+        var lidMat = new THREE.MeshStandardMaterial({ color: lidColor, roughness: 0.15, metalness: 0.65 });
         lidGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(lidR, lidR, lidH, 64), lidMat));
 
         // Knurl grooves
@@ -556,15 +542,19 @@ if (statsSection) {
         jarGroup.position.y = -0.3;
 
         // ── Responsive resize ────────────────────────────────────────
+        var started = false;
         function resize() {
-            var w = canvas.clientWidth;
-            var h = canvas.clientHeight;
-            if (!w || !h) return;
+            var wrap = canvas.parentElement;
+            var w = wrap ? wrap.clientWidth : canvas.clientWidth;
+            var h = wrap ? wrap.clientHeight : canvas.clientHeight;
+            if (!w || !h) { w = 400; h = 400; }
             renderer.setSize(w, h, false);
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
+            if (!started) { started = true; }
         }
-        resize();
+        // Defer first resize to ensure layout is complete
+        requestAnimationFrame(function () { resize(); });
         window.addEventListener('resize', resize);
 
         // ── Manual orbit controls ────────────────────────────────────
