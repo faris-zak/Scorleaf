@@ -325,7 +325,7 @@ if (statsSection) {
 }
 
 // ===== SCORPION MAP =====
-(function () {
+window.addEventListener('load', function () {
     if (!document.getElementById('scorpion-map') || typeof L === 'undefined') return;
 
     var countryData = {
@@ -458,7 +458,25 @@ if (statsSection) {
             infoPanel.reset();
         }
     });
-})();
+
+    // Force correct dimensions after layout settles
+    setTimeout(function () { map.invalidateSize(); }, 200);
+
+    // Re-fit on window resize
+    window.addEventListener('resize', function () { map.invalidateSize(); });
+
+    // Re-fit when map scrolls into view
+    var mapVisible = false;
+    var mapVisObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting && !mapVisible) {
+                mapVisible = true;
+                map.invalidateSize();
+            }
+        });
+    }, { threshold: 0.1 });
+    mapVisObserver.observe(document.getElementById('scorpion-map'));
+});
 
 // ===== SCROLL REVEAL =====
 (function () {

@@ -1714,6 +1714,13 @@ main section.symptom-section {
     line-height: 1.6;
 }
 
+/* Neutralize global transition for Leaflet internals */
+.leaflet-container,
+.leaflet-container * {
+    transition: none !important;
+    animation: none !important;
+}
+
 /* Source note */
 .stats-source {
     margin-top: 26px;
