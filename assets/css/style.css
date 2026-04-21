@@ -8,9 +8,8 @@
     transition: all 0.2s ease;
 }
 
-
 /* WebKit browsers (Chrome, Safari, Edge) */
-/* ::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 12px;
     height: 12px;
 }
@@ -33,11 +32,11 @@
 } 
 
 /* Firefox */
-/*body {
+body {
     scrollbar-width: thin;
     scrollbar-color: #1C8F5A #F5FAF7;
 }
-*/
+
 
 html{
     scroll-behavior: smooth;
@@ -886,6 +885,7 @@ main section.fourth-body {
     color: #1A2E25;
     transition: all 0.25s ease;
     outline: none;
+    direction: auto;
 }
 
 .form-input:focus {
@@ -895,6 +895,7 @@ main section.fourth-body {
 
 .form-input::placeholder {
     color: #9CA3AF;
+    direction: rtl;
 }
 
 .form-textarea {
@@ -1160,31 +1161,33 @@ main section.fourth-body {
         right: 0px;
         max-width: 300px;
         min-width: 230px;
-        max-height: 300px;
         min-height: 230;
+        max-height: 400px;
+        overflow-y: auto;
         user-select: none;
         border: none;
         border-top: none;
         visibility: hidden;
         padding: 12px;
         transition: 0.5s;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.1);
         box-shadow: 
         0 4px 20px rgba(0, 0, 0, 0.1),
-        inset 0 0 30px rgba(28, 143, 90, 0.05),
+        inset 0 0 30px rgba(0, 0, 0, 0.05),
         0 0 30px rgba(28, 143, 90, 0.05);
-       z-index: -1;
-      transition: 0.5s;
-      opacity: 0;
+        background: rgba(101, 101, 101, 0.15);
+        z-index: -1;
+        transition: 0.5s;
+        opacity: 0;
     }
     
     nav.navbar div.dropdown div.dropdownContent a{
         color: #FFFFFF;
         background: #1C8F5A;
-        margin-top: 10px;
+        margin-top: 12px;
         padding: 14px 20px;
         font-size: 16px;
         border-radius: 20px;
@@ -1781,6 +1784,131 @@ main section.symptom-section {
     }
 }
 
+/* ===== PRODUCTS ===== */
+main section.products-section {
+    background: linear-gradient(160deg, #f8fdf9 0%, #eef7f3 100%);
+    border-top: 1px solid rgba(28, 143, 90, 0.06);
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 40px;
+}
+
+.product-card {
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.07);
+    border: 1px solid rgba(28, 143, 90, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 44px rgba(28, 143, 90, 0.14);
+}
+
+.product-canvas-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: radial-gradient(circle at 50% 38%, #f0faf5 0%, #dff0e8 100%);
+    cursor: grab;
+    display: block;
+}
+
+.product-canvas-wrap:active {
+    cursor: grabbing;
+}
+
+.product-canvas-wrap canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.product-info {
+    padding: 22px 24px 28px;
+    text-align: right;
+}
+
+.product-badge {
+    display: inline-block;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    padding: 3px 14px;
+    border-radius: 30px;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.product-badge-green {
+    background: rgba(28, 143, 90, 0.11);
+    color: #1C8F5A;
+}
+
+.product-badge-blue {
+    background: rgba(74, 156, 196, 0.13);
+    color: #2975a6;
+}
+
+.product-name {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1A2E25;
+    margin-bottom: 8px;
+}
+
+.product-desc {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.93rem;
+    color: #4E6B5A;
+    line-height: 1.75;
+    margin-bottom: 14px;
+}
+
+.product-features {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.product-features span {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.8rem;
+    color: #1C8F5A;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.products-note {
+    text-align: center;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.86rem;
+    color: #4E6B5A;
+    margin-top: 18px;
+    opacity: 0.7;
+}
+
+.products-note i {
+    margin-left: 5px;
+    color: #1C8F5A;
+}
+
+@media screen and (max-width: 768px) {
+    .products-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
 /* ===== SCROLL REVEAL ===== */
 .reveal {
     opacity: 0;
@@ -1790,5 +1918,4 @@ main section.symptom-section {
 .reveal.visible {
     opacity: 1;
     transform: translateY(0);
-}
 }

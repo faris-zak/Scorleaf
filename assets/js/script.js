@@ -381,11 +381,125 @@ if (statsSection) {
     }
 })();
 
+// ===== 3D PRODUCT MODELS =====
+(function () {
+    if (typeof THREE === 'undefined') return;
+
+    function buildJar(canvasEl, cfg) {
+        var renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+        camera.position.set(0, 0.4, 4.2);
+
+        // Lights
+        scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+        var key = new THREE.DirectionalLight(0xffffff, 1.5);
+        key.position.set(3, 5, 4);
+        scene.add(key);
+        var fill = new THREE.DirectionalLight(0xffffff, 0.3);
+        fill.position.set(-3, 0, -2);
+        scene.add(fill);
+
+        var group = new THREE.Group();
+
+        // Body (open-top cylinder)
+        var bodyColor = new THREE.Color(cfg.bodyColor);
+        var bodyMat = new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.5, metalness: 0.06 });
+        group.add(new THREE.Mesh(new THREE.CylinderGeometry(cfg.r, cfg.r, cfg.h, 64, 1, true), bodyMat));
+
+        // Bottom cap
+        var bot = new THREE.Mesh(new THREE.CircleGeometry(cfg.r, 64), bodyMat.clone());
+        bot.rotation.x = -Math.PI / 2;
+        bot.position.y = -cfg.h / 2;
+        group.add(bot);
+
+        // Label band (canvas texture)
+        var lc = document.createElement('canvas');
+        lc.width = 512; lc.height = 256;
+        var ctx = lc.getContext('2d');
+        var grad = ctx.createLinearGradient(0, 0, 512, 0);
+        grad.addColorStop(0,    'rgba(255,255,255,0)');
+        grad.addColorStop(0.12, 'rgba(255,255,255,0.93)');
+        grad.addColorStop(0.88, 'rgba(255,255,255,0.93)');
+        grad.addColorStop(1,    'rgba(255,255,255,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 256);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#1A2E25';
+        ctx.font = 'bold 58px Arial, sans-serif';
+        ctx.fillText('ScorLeaf', 256, 84);
+        ctx.font = '22px Arial, sans-serif';
+        ctx.fillStyle = cfg.bodyColor;
+        ctx.fillText('Natural Against Venom', 256, 120);
+        ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(72, 138); ctx.lineTo(440, 138); ctx.stroke();
+        ctx.font = 'bold 42px Arial, sans-serif';
+        ctx.fillStyle = '#1A2E25';
+        ctx.fillText(cfg.sizeLabel, 256, 196);
+        var labelTex = new THREE.CanvasTexture(lc);
+        var labelGeo = new THREE.CylinderGeometry(cfg.r + 0.003, cfg.r + 0.003, cfg.h * 0.6, 64, 1, true);
+        group.add(new THREE.Mesh(labelGeo, new THREE.MeshStandardMaterial({ map: labelTex, transparent: true, roughness: 0.85 })));
+
+        // Lid
+        var lidH = cfg.h * 0.17;
+        var lidR = cfg.r + 0.048;
+        var lidMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(cfg.lidColor), roughness: 0.25, metalness: 0.6 });
+        var lid = new THREE.Mesh(new THREE.CylinderGeometry(lidR, lidR, lidH, 64), lidMat);
+        lid.position.y = cfg.h / 2 + lidH / 2;
+        group.add(lid);
+
+        group.position.y = -(cfg.h * 0.04);
+        scene.add(group);
+
+        // Resize
+        function resize() {
+            var w = canvasEl.clientWidth;
+            var h = canvasEl.clientHeight;
+            if (!w || !h) return;
+            renderer.setSize(w, h, false);
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // Drag to rotate
+        var dragging = false, lastX = 0;
+        canvasEl.addEventListener('mousedown',  function (e) { dragging = true; lastX = e.clientX; });
+        window.addEventListener('mousemove',    function (e) { if (!dragging) return; group.rotation.y += (e.clientX - lastX) * 0.012; lastX = e.clientX; });
+        window.addEventListener('mouseup',      function ()  { dragging = false; });
+        canvasEl.addEventListener('touchstart', function (e) { dragging = true; lastX = e.touches[0].clientX; }, { passive: true });
+        canvasEl.addEventListener('touchmove',  function (e) { if (!dragging) return; group.rotation.y += (e.touches[0].clientX - lastX) * 0.012; lastX = e.touches[0].clientX; }, { passive: true });
+        canvasEl.addEventListener('touchend',   function ()  { dragging = false; }, { passive: true });
+
+        // Animate loop
+        (function loop() {
+            requestAnimationFrame(loop);
+            if (!dragging) group.rotation.y += 0.007;
+            renderer.render(scene, camera);
+        })();
+    }
+
+    window.addEventListener('load', function () {
+        [
+            { id: 'product-canvas-30', bodyColor: '#2a7a45', lidColor: '#c8a820', r: 0.70, h: 1.32, sizeLabel: '30g' },
+            { id: 'product-canvas-10', bodyColor: '#4a9cc4', lidColor: '#c8a820', r: 0.76, h: 0.88, sizeLabel: '10g' }
+        ].forEach(function (cfg) {
+            var el = document.getElementById(cfg.id);
+            if (el) buildJar(el, cfg);
+        });
+    });
+})();
+
 // ===== SCROLL REVEAL =====
 (function () {
     const revealSelectors = [
         '.hero-content',
         '.features-container',
+        '.products-grid',
         '.team-container',
         '.achievements-grid',
         '.media-grid',
