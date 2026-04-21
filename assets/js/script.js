@@ -385,79 +385,180 @@ if (statsSection) {
 (function () {
     if (typeof THREE === 'undefined') return;
 
-    function buildJar(canvasEl, cfg) {
-        var renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: true });
+    function buildScene(canvasId, lidColor, bodyColor, scale) {
+        var canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        // Three.js r152+ uses outputColorSpace; r128 used outputEncoding
+        if ('outputColorSpace' in renderer) {
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+        }
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
 
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-        camera.position.set(0, 0.4, 4.2);
 
-        // Lights
-        scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-        var key = new THREE.DirectionalLight(0xffffff, 1.5);
-        key.position.set(3, 5, 4);
-        scene.add(key);
-        var fill = new THREE.DirectionalLight(0xffffff, 0.3);
-        fill.position.set(-3, 0, -2);
-        scene.add(fill);
+        var W = canvas.clientWidth  || 400;
+        var H = canvas.clientHeight || 400;
+        renderer.setSize(W, H, false);
 
-        var group = new THREE.Group();
+        var camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+        camera.position.set(0, 1.5, 5);
 
-        // Body (open-top cylinder)
-        var bodyColor = new THREE.Color(cfg.bodyColor);
-        var bodyMat = new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.5, metalness: 0.06 });
-        group.add(new THREE.Mesh(new THREE.CylinderGeometry(cfg.r, cfg.r, cfg.h, 64, 1, true), bodyMat));
+        // ── Lights ──────────────────────────────────────────────────
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-        // Bottom cap
-        var bot = new THREE.Mesh(new THREE.CircleGeometry(cfg.r, 64), bodyMat.clone());
-        bot.rotation.x = -Math.PI / 2;
-        bot.position.y = -cfg.h / 2;
-        group.add(bot);
+        var keyLight = new THREE.DirectionalLight(0xfff5e0, 2.5);
+        keyLight.position.set(3, 6, 4);
+        keyLight.castShadow = true;
+        scene.add(keyLight);
 
-        // Label band (canvas texture)
-        var lc = document.createElement('canvas');
-        lc.width = 512; lc.height = 256;
-        var ctx = lc.getContext('2d');
-        var grad = ctx.createLinearGradient(0, 0, 512, 0);
-        grad.addColorStop(0,    'rgba(255,255,255,0)');
-        grad.addColorStop(0.12, 'rgba(255,255,255,0.93)');
-        grad.addColorStop(0.88, 'rgba(255,255,255,0.93)');
-        grad.addColorStop(1,    'rgba(255,255,255,0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 512, 256);
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#1A2E25';
-        ctx.font = 'bold 58px Arial, sans-serif';
-        ctx.fillText('ScorLeaf', 256, 84);
-        ctx.font = '22px Arial, sans-serif';
-        ctx.fillStyle = cfg.bodyColor;
-        ctx.fillText('Natural Against Venom', 256, 120);
-        ctx.strokeStyle = 'rgba(0,0,0,0.12)';
-        ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(72, 138); ctx.lineTo(440, 138); ctx.stroke();
-        ctx.font = 'bold 42px Arial, sans-serif';
-        ctx.fillStyle = '#1A2E25';
-        ctx.fillText(cfg.sizeLabel, 256, 196);
-        var labelTex = new THREE.CanvasTexture(lc);
-        var labelGeo = new THREE.CylinderGeometry(cfg.r + 0.003, cfg.r + 0.003, cfg.h * 0.6, 64, 1, true);
-        group.add(new THREE.Mesh(labelGeo, new THREE.MeshStandardMaterial({ map: labelTex, transparent: true, roughness: 0.85 })));
+        var fillLight = new THREE.DirectionalLight(0xa8d8a0, 0.8);
+        fillLight.position.set(-4, 2, -2);
+        scene.add(fillLight);
 
-        // Lid
-        var lidH = cfg.h * 0.17;
-        var lidR = cfg.r + 0.048;
-        var lidMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(cfg.lidColor), roughness: 0.25, metalness: 0.6 });
-        var lid = new THREE.Mesh(new THREE.CylinderGeometry(lidR, lidR, lidH, 64), lidMat);
-        lid.position.y = cfg.h / 2 + lidH / 2;
-        group.add(lid);
+        var rimLight = new THREE.DirectionalLight(0x88ccff, 0.6);
+        rimLight.position.set(0, -3, -4);
+        scene.add(rimLight);
 
-        group.position.y = -(cfg.h * 0.04);
-        scene.add(group);
+        var pointLight = new THREE.PointLight(lidColor, 1.5, 8);
+        pointLight.position.set(0, 3, 1);
+        scene.add(pointLight);
 
-        // Resize
+        // ── Jar geometry ────────────────────────────────────────────
+        var jarGroup = new THREE.Group();
+        scene.add(jarGroup);
+
+        var jarH = 2.0 * scale;
+        var jarR = 1.3 * scale;
+
+        // Body cylinder
+        var bodyMat = new THREE.MeshPhysicalMaterial({
+            color: bodyColor,
+            roughness: 0.1,
+            metalness: 0.05,
+            transmission: 0.55,
+            thickness: 0.5,
+            transparent: true,
+            opacity: 0.85
+        });
+        jarGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(jarR, jarR * 0.92, jarH, 64, 1, false), bodyMat));
+
+        // Bottom disc
+        var botMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(jarR * 0.92, jarR * 0.92, 0.08 * scale, 64),
+            new THREE.MeshPhysicalMaterial({ color: bodyColor, roughness: 0.2, opacity: 0.9, transparent: true })
+        );
+        botMesh.position.y = -jarH / 2;
+        jarGroup.add(botMesh);
+
+        // Label ring (canvas texture)
+        var labelCanvas = document.createElement('canvas');
+        labelCanvas.width = 1024; labelCanvas.height = 512;
+        var lctx = labelCanvas.getContext('2d');
+
+        var grad = lctx.createLinearGradient(0, 0, 0, 512);
+        grad.addColorStop(0,    '#2d6010');
+        grad.addColorStop(0.25, '#4a9020');
+        grad.addColorStop(0.5,  '#5aa825');
+        grad.addColorStop(0.75, '#3d7518');
+        grad.addColorStop(1,    '#1e4008');
+        lctx.fillStyle = grad;
+        lctx.fillRect(0, 0, 1024, 512);
+
+        var goldGrad = lctx.createLinearGradient(0, 140, 0, 240);
+        goldGrad.addColorStop(0,   '#c9a84c');
+        goldGrad.addColorStop(0.5, '#e8d08a');
+        goldGrad.addColorStop(1,   '#c9a84c');
+        lctx.fillStyle = goldGrad;
+        lctx.fillRect(0, 145, 1024, 105);
+
+        lctx.textAlign = 'center';
+        lctx.fillStyle = '#fff';
+        lctx.font = 'bold 54px serif';
+        lctx.fillText('ScorLeaf', 512, 110);
+
+        lctx.fillStyle = '#d4f0b0';
+        lctx.font = '24px sans-serif';
+        lctx.fillText('Natural Against Venom', 512, 143);
+
+        lctx.fillStyle = '#1a1a1a';
+        lctx.font = 'bold 40px serif';
+        lctx.fillText('Natural Scorpion Sting Relief', 512, 195);
+
+        lctx.fillStyle = '#2d5016';
+        lctx.font = 'bold 30px sans-serif';
+        lctx.fillText('Fast Acting Herbal Formula', 512, 232);
+
+        lctx.fillStyle = '#ffffff';
+        lctx.font = 'bold 48px serif';
+        lctx.fillText(scale > 0.8 ? '30g' : '10g', 512, 310);
+
+        lctx.fillStyle = '#c9a84c';
+        lctx.font = '26px sans-serif';
+        lctx.fillText('Made in Oman', 512, 370);
+
+        lctx.font = '80px serif';
+        lctx.globalAlpha = 0.12;
+        lctx.fillStyle = '#fff';
+        lctx.fillText('\uD83E\uDD82', 870, 460);
+        lctx.globalAlpha = 1;
+
+        var labelTex = new THREE.CanvasTexture(labelCanvas);
+        var labelMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(jarR + 0.01, jarR + 0.01, jarH * 0.75, 64, 1, true),
+            new THREE.MeshStandardMaterial({ map: labelTex, roughness: 0.4, transparent: true, opacity: 0.97 })
+        );
+        labelMesh.position.y = -jarH * 0.05;
+        jarGroup.add(labelMesh);
+
+        // ── Lid ─────────────────────────────────────────────────────
+        var lidGroup = new THREE.Group();
+        var lidH = 0.45 * scale;
+        var lidR = jarR + 0.06;
+
+        var lidMat = new THREE.MeshPhysicalMaterial({ color: lidColor, roughness: 0.15, metalness: 0.6 });
+        lidGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(lidR, lidR, lidH, 64), lidMat));
+
+        // Knurl grooves
+        for (var i = 0; i < 18; i++) {
+            var a = (i / 18) * Math.PI * 2;
+            var knurlMesh = new THREE.Mesh(new THREE.BoxGeometry(0.04, lidH * 0.9, 0.04), lidMat);
+            knurlMesh.position.set(Math.cos(a) * (lidR - 0.02), 0, Math.sin(a) * (lidR - 0.02));
+            knurlMesh.rotation.y = -a;
+            lidGroup.add(knurlMesh);
+        }
+
+        // Lid skirt
+        var skirtMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(lidR, jarR, 0.15 * scale, 64, 1, true),
+            lidMat
+        );
+        skirtMesh.position.y = -(lidH / 2 + 0.07);
+        lidGroup.add(skirtMesh);
+
+        lidGroup.position.y = jarH / 2 + lidH / 2;
+        jarGroup.add(lidGroup);
+
+        // Shadow plane
+        var shadowMesh = new THREE.Mesh(
+            new THREE.CircleGeometry(jarR * 1.5, 48),
+            new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.25, depthWrite: false })
+        );
+        shadowMesh.rotation.x = -Math.PI / 2;
+        shadowMesh.position.y = -(jarH / 2 + 0.01);
+        jarGroup.add(shadowMesh);
+
+        jarGroup.position.y = -0.3;
+
+        // ── Responsive resize ────────────────────────────────────────
         function resize() {
-            var w = canvasEl.clientWidth;
-            var h = canvasEl.clientHeight;
+            var w = canvas.clientWidth;
+            var h = canvas.clientHeight;
             if (!w || !h) return;
             renderer.setSize(w, h, false);
             camera.aspect = w / h;
@@ -466,31 +567,59 @@ if (statsSection) {
         resize();
         window.addEventListener('resize', resize);
 
-        // Drag to rotate
-        var dragging = false, lastX = 0;
-        canvasEl.addEventListener('mousedown',  function (e) { dragging = true; lastX = e.clientX; });
-        window.addEventListener('mousemove',    function (e) { if (!dragging) return; group.rotation.y += (e.clientX - lastX) * 0.012; lastX = e.clientX; });
-        window.addEventListener('mouseup',      function ()  { dragging = false; });
-        canvasEl.addEventListener('touchstart', function (e) { dragging = true; lastX = e.touches[0].clientX; }, { passive: true });
-        canvasEl.addEventListener('touchmove',  function (e) { if (!dragging) return; group.rotation.y += (e.touches[0].clientX - lastX) * 0.012; lastX = e.touches[0].clientX; }, { passive: true });
-        canvasEl.addEventListener('touchend',   function ()  { dragging = false; }, { passive: true });
+        // ── Manual orbit controls ────────────────────────────────────
+        var isDragging = false, prevX = 0, prevY = 0;
+        var rotY = 0.3, rotX = 0.15;
+        var zoom = 5;
+        var autoRotate = true;
 
-        // Animate loop
+        canvas.addEventListener('mousedown', function (e) {
+            isDragging = true; autoRotate = false;
+            prevX = e.clientX; prevY = e.clientY;
+        });
+        window.addEventListener('mouseup', function () { isDragging = false; });
+        canvas.addEventListener('mousemove', function (e) {
+            if (!isDragging) return;
+            rotY += (e.clientX - prevX) * 0.012;
+            rotX += (e.clientY - prevY) * 0.008;
+            rotX = Math.max(-0.7, Math.min(0.9, rotX));
+            prevX = e.clientX; prevY = e.clientY;
+        });
+        canvas.addEventListener('wheel', function (e) {
+            zoom = Math.max(2.5, Math.min(9, zoom + e.deltaY * 0.008));
+            e.preventDefault();
+        }, { passive: false });
+
+        var lastTouch = null;
+        canvas.addEventListener('touchstart', function (e) {
+            lastTouch = e.touches[0]; isDragging = true; autoRotate = false;
+        }, { passive: true });
+        canvas.addEventListener('touchend',  function () { isDragging = false; }, { passive: true });
+        canvas.addEventListener('touchmove', function (e) {
+            if (!isDragging || !lastTouch) return;
+            rotY += (e.touches[0].clientX - lastTouch.clientX) * 0.015;
+            rotX += (e.touches[0].clientY - lastTouch.clientY) * 0.010;
+            rotX = Math.max(-0.7, Math.min(0.9, rotX));
+            lastTouch = e.touches[0];
+        }, { passive: true });
+
+        // ── Animation loop ───────────────────────────────────────────
         (function loop() {
             requestAnimationFrame(loop);
-            if (!dragging) group.rotation.y += 0.007;
+            if (autoRotate) rotY += 0.008;
+            jarGroup.rotation.y = rotY;
+            jarGroup.rotation.x = rotX;
+            camera.position.z = zoom;
+            camera.lookAt(0, 0, 0);
             renderer.render(scene, camera);
         })();
     }
 
     window.addEventListener('load', function () {
-        [
-            { id: 'product-canvas-30', bodyColor: '#2a7a45', lidColor: '#c8a820', r: 0.70, h: 1.32, sizeLabel: '30g' },
-            { id: 'product-canvas-10', bodyColor: '#4a9cc4', lidColor: '#c8a820', r: 0.76, h: 0.88, sizeLabel: '10g' }
-        ].forEach(function (cfg) {
-            var el = document.getElementById(cfg.id);
-            if (el) buildJar(el, cfg);
-        });
+        // 30g: gold lid, deep-green body
+        buildScene('product-canvas-30', 0xc9a84c, 0x3a7a1a, 1.0);
+        // 10g: teal lid, teal-green body, smaller scale
+        buildScene('product-canvas-10', 0x5aacb8, 0x3a9060, 0.68);
     });
 })();
 
