@@ -84,8 +84,13 @@ function shiftLightbox(dir) {
 
 function updateLightbox() {
     const item = galleryImages[currentLightboxIndex];
-    document.getElementById('lightboxImg').src = item.src;
-    document.getElementById('lightboxImg').alt = item.caption;
+    const img = document.getElementById('lightboxImg');
+    // Re-trigger fade animation on image swap
+    img.style.animation = 'none';
+    img.offsetHeight; // force reflow
+    img.style.animation = '';
+    img.src = item.src;
+    img.alt = item.caption;
     document.getElementById('lightboxCaption').textContent = item.caption;
 }
 
@@ -301,11 +306,7 @@ function animateCounter(el) {
   }, 16);
 }
 
-function animateStatBars() {
-  document.querySelectorAll('.gulf-bar').forEach(function (bar) {
-    bar.style.width = bar.dataset.width + '%';
-  });
-}
+function animateStatBars() {}
 
 var statsAnimated = false;
 var statsObserver = new IntersectionObserver(function (entries) {
@@ -313,7 +314,6 @@ var statsObserver = new IntersectionObserver(function (entries) {
     if (entry.isIntersecting && !statsAnimated) {
       statsAnimated = true;
       document.querySelectorAll('.stat-number').forEach(animateCounter);
-      animateStatBars();
       statsObserver.disconnect();
     }
   });
@@ -323,3 +323,167 @@ var statsSection = document.getElementById('statistics');
 if (statsSection) {
   statsObserver.observe(statsSection);
 }
+
+// ===== SCORPION MAP =====
+(function () {
+    if (!document.getElementById('scorpion-map') || typeof L === 'undefined') return;
+
+    var countryData = {
+        sa: { name: 'المملكة العربية السعودية', flag: '🇸🇦', cases: 35000, desc: 'أعلى معدل في دول الخليج — الحالات تتركز في المناطق الريفية والصحراوية' },
+        ye: { name: 'اليمن', flag: '🇾🇪', cases: 30000, desc: 'معدلات مرتفعة جداً وصعوبة الوصول للعلاج الطبي في المناطق النائية' },
+        om: { name: 'سلطنة عُمان', flag: '🇴🇲', cases: 1500, desc: 'حالات موثقة سنوياً — المحافظات الداخلية أكثر تأثراً' },
+        kw: { name: 'الكويت', flag: '🇰🇼', cases: 500, desc: 'معدلات منخفضة نسبياً — غالبية الحالات في المناطق الصحراوية' },
+        ae: { name: 'الإمارات', flag: '🇦🇪', cases: 400, desc: 'بنية صحية متطورة تسهم في تقليص معدل الوفيات' },
+        qa: { name: 'قطر', flag: '🇶🇦', cases: 200, desc: 'أقل الدول تأثراً بفضل الرقعة الجغرافية المحدودة والرعاية الصحية المتقدمة' },
+        bh: { name: 'البحرين', flag: '🇧🇭', cases: 200, desc: 'تقديرات سنوية منخفضة — رقعة جغرافية محدودة' }
+    };
+
+    function getColor(cases) {
+        return cases >= 25000 ? '#8B0000' :
+               cases >= 10000 ? '#D32F2F' :
+               cases >= 1000  ? '#FF7043' :
+               cases >= 500   ? '#FFB300' : '#66BB6A';
+    }
+
+    var geoData = {
+        type: 'FeatureCollection',
+        features: [
+            {
+                type: 'Feature', properties: { id: 'sa' },
+                geometry: { type: 'Polygon', coordinates: [[[36.71,29.18],[38.95,32.3],[44.2,29.6],[47.5,29.0],[48.45,28.5],[49.8,26.2],[51.5,24.2],[55.7,22.0],[52.0,17.8],[47.0,17.0],[42.5,16.9],[38.3,17.2],[38.8,19.5],[38.5,22.0],[38.0,24.0],[38.0,26.5],[36.71,29.18]]] }
+            },
+            {
+                type: 'Feature', properties: { id: 'ye' },
+                geometry: { type: 'Polygon', coordinates: [[[42.5,16.9],[52.0,17.8],[53.5,17.5],[54.2,16.5],[54.0,14.5],[52.5,12.5],[49.5,12.0],[45.0,12.5],[43.5,13.8],[43.0,15.0],[42.0,16.5],[42.5,16.9]]] }
+            },
+            {
+                type: 'Feature', properties: { id: 'om' },
+                geometry: { type: 'Polygon', coordinates: [[[55.7,22.0],[56.5,22.8],[57.5,23.2],[58.5,23.7],[59.8,22.0],[59.3,21.0],[58.7,20.0],[57.5,18.5],[56.0,17.0],[54.0,16.5],[52.5,17.0],[52.0,17.8],[55.7,22.0]]] }
+            },
+            {
+                type: 'Feature', properties: { id: 'ae' },
+                geometry: { type: 'Polygon', coordinates: [[[51.5,24.2],[55.7,22.0],[56.4,24.0],[56.5,25.2],[55.5,25.8],[54.5,24.5],[52.5,24.2],[51.5,24.2]]] }
+            },
+            {
+                type: 'Feature', properties: { id: 'kw' },
+                geometry: { type: 'Polygon', coordinates: [[[46.8,29.1],[47.5,29.0],[48.5,28.5],[48.5,29.5],[47.5,30.1],[46.8,29.5],[46.8,29.1]]] }
+            },
+            {
+                type: 'Feature', properties: { id: 'qa' },
+                geometry: { type: 'Polygon', coordinates: [[[50.7,24.6],[51.6,24.6],[51.7,25.0],[51.5,26.2],[51.0,26.15],[50.7,25.5],[50.7,24.6]]] }
+            },
+            {
+                type: 'Feature', properties: { id: 'bh' },
+                geometry: { type: 'Polygon', coordinates: [[[50.35,25.8],[50.75,25.8],[50.85,26.35],[50.4,26.4],[50.35,25.8]]] }
+            }
+        ]
+    };
+
+    var map = L.map('scorpion-map', {
+        center: [22.5, 50],
+        zoom: 5,
+        zoomControl: false,
+        scrollWheelZoom: false
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+
+    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+    var infoPanel = L.control({ position: 'topright' });
+    infoPanel.onAdd = function () {
+        this._div = L.DomUtil.create('div', 'map-info-panel');
+        this.reset();
+        return this._div;
+    };
+    infoPanel.reset = function () {
+        this._div.innerHTML = '<p class="map-hint-text"><i class="fa-solid fa-hand-pointer"></i> مرّر المؤشر فوق دولة</p>';
+    };
+    infoPanel.update = function (d) {
+        this._div.innerHTML =
+            '<div class="map-country-name">' + d.flag + ' ' + d.name + '</div>' +
+            '<div class="map-country-cases">~' + d.cases.toLocaleString('ar-SA') + ' حالة / سنة</div>' +
+            '<div class="map-country-desc">' + d.desc + '</div>';
+    };
+    infoPanel.addTo(map);
+
+    var geojsonLayer;
+    var activeLayer = null;
+
+    function onEachFeature(feature, layer) {
+        var d = countryData[feature.properties.id];
+        if (!d) return;
+        layer.on({
+            mouseover: function (e) {
+                e.target.setStyle({ weight: 3, fillOpacity: 0.92 });
+                infoPanel.update(d);
+            },
+            mouseout: function (e) {
+                if (activeLayer !== e.target) geojsonLayer.resetStyle(e.target);
+                if (activeLayer === null) infoPanel.reset();
+            },
+            click: function (e) {
+                if (activeLayer) geojsonLayer.resetStyle(activeLayer);
+                activeLayer = e.target;
+                e.target.setStyle({ weight: 3, fillOpacity: 0.92 });
+                infoPanel.update(d);
+                map.fitBounds(e.target.getBounds(), { padding: [50, 50], maxZoom: 7 });
+                L.DomEvent.stopPropagation(e);
+            }
+        });
+    }
+
+    geojsonLayer = L.geoJSON(geoData, {
+        style: function (feature) {
+            var d = countryData[feature.properties.id];
+            return {
+                fillColor: d ? getColor(d.cases) : '#cccccc',
+                weight: 1.5,
+                opacity: 1,
+                color: '#ffffff',
+                fillOpacity: 0.75
+            };
+        },
+        onEachFeature: onEachFeature
+    }).addTo(map);
+
+    map.on('click', function () {
+        if (activeLayer) {
+            geojsonLayer.resetStyle(activeLayer);
+            activeLayer = null;
+            infoPanel.reset();
+        }
+    });
+})();
+
+// ===== SCROLL REVEAL =====
+(function () {
+    const revealSelectors = [
+        '.hero-content',
+        '.features-container',
+        '.team-container',
+        '.achievements-grid',
+        '.media-grid',
+        '.gallery-grid',
+        '.stats-grid',
+        '.contact-grid',
+        '.contact-form-card',
+    ];
+    const revealEls = document.querySelectorAll(revealSelectors.join(', '));
+    revealEls.forEach(el => el.classList.add('reveal'));
+
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08 });
+
+    revealEls.forEach(el => revealObserver.observe(el));
+})();

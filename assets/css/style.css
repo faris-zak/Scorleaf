@@ -578,17 +578,28 @@ main section.gallery-section {
 
 /* Lightbox */
 .lightbox {
-    display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.88);
     z-index: 2000;
+    display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .lightbox.open {
-    display: flex;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+@keyframes lb-img-fade {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
 .lightbox-inner {
@@ -603,6 +614,7 @@ main section.gallery-section {
     border-radius: 12px;
     display: block;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: lb-img-fade 0.25s ease;
 }
 
 .lightbox-caption {
@@ -1593,79 +1605,113 @@ main section.symptom-section {
     line-height: 1.5;
 }
 
-/* Gulf bar chart */
-.gulf-stats {
-    background: #F5FAF7;
-    border: 1px solid rgba(28, 143, 90, 0.1);
-    border-radius: 20px;
-    padding: 32px;
+/* Interactive Scorpion Map */
+.map-wrapper {
     margin-top: 36px;
 }
 
-.gulf-title {
+#scorpion-map {
+    width: 100%;
+    height: 460px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(28, 143, 90, 0.15);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+}
+
+.map-legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding: 12px 18px;
+    background: #F5FAF7;
+    border-radius: 14px;
+    border: 1px solid rgba(28, 143, 90, 0.1);
+}
+
+.legend-title {
     font-family: 'Tajawal', sans-serif;
-    font-size: 1.05rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: #1A2E25;
-    margin: 0 0 26px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.gulf-title i {
-    color: #1C8F5A;
-}
-
-.gulf-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.gulf-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.gulf-country {
-    font-family: 'Tajawal', sans-serif;
-    font-size: 0.95rem;
-    color: #1A2E25;
-    font-weight: 600;
-    min-width: 210px;
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
+}
+.legend-title i { color: #1C8F5A; }
+
+.legend-items {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
 }
 
-.gulf-bar-wrap {
-    flex: 1;
-    background: rgba(28, 143, 90, 0.07);
-    border-radius: 30px;
-    height: 38px;
-    overflow: hidden;
-}
-
-.gulf-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #1C8F5A, #4fcf91);
-    border-radius: 30px;
+.legend-item {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding-inline-end: 14px;
-    transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 80px;
+    gap: 5px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.82rem;
+    color: #4E6B5A;
 }
 
-.gulf-bar-num {
-    font-family: 'Nunito', sans-serif;
-    font-size: 0.82rem;
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Leaflet info control panel */
+.map-info-panel {
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 14px !important;
+    padding: 14px 18px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+    border: 1px solid rgba(28, 143, 90, 0.12);
+    min-width: 190px;
+    max-width: 250px;
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+    text-align: right;
+    pointer-events: none;
+    line-height: 1.4;
+}
+
+.map-hint-text {
+    font-size: 0.85rem;
+    color: #4E6B5A;
+    margin: 0;
+}
+.map-hint-text i {
+    color: #1C8F5A;
+    margin-left: 4px;
+}
+
+.map-country-name {
+    font-size: 1rem;
     font-weight: 700;
-    color: #fff;
-    white-space: nowrap;
+    color: #1A2E25;
+    margin-bottom: 4px;
+}
+
+.map-country-cases {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #1C8F5A;
+    margin-bottom: 6px;
+}
+
+.map-country-desc {
+    font-size: 0.82rem;
+    color: #4E6B5A;
+    line-height: 1.6;
 }
 
 /* Source note */
@@ -1703,18 +1749,8 @@ main section.symptom-section {
         grid-template-columns: 1fr 1fr;
     }
 
-    .gulf-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-    }
-
-    .gulf-country {
-        min-width: auto;
-    }
-
-    .gulf-bar-wrap {
-        width: 100%;
+    #scorpion-map {
+        height: 300px;
     }
 }
 
@@ -1722,4 +1758,16 @@ main section.symptom-section {
     .stats-grid {
         grid-template-columns: repeat(1, 1fr);
     }
+}
+
+/* ===== SCROLL REVEAL ===== */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
 }
