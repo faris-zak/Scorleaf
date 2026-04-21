@@ -25,4 +25,6 @@ This project uses a dual-licensing approach:
 
 See LICENSE and TERMS.md for full details.
 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 &copy; Scorleaf 2026 — All rights reserved
